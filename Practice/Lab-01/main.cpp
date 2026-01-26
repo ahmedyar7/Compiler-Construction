@@ -17,6 +17,7 @@ int applyOper(int a, int b, char op, bool& error) {
 
     if (op == '-') return a - b;
     if (op == '*') return a * b;
+
     if (op == '/') {
         if (b == 0) {
             error = true;
@@ -24,6 +25,7 @@ int applyOper(int a, int b, char op, bool& error) {
         }
         return a / b;
     }
+
     if (op == '%') {
         if (b == 0) {
             error = true;
@@ -42,7 +44,7 @@ string evaluate(string equation) {
      * 2. Operand Stack
      */
 
-    stack<int> operator_st;
+    stack<char> operator_st;
     stack<int> values_st;
 
     bool error = false;
@@ -81,28 +83,86 @@ string evaluate(string equation) {
 
                 values_st.push(applyOper(val1, val2, op, error));
             }
+
+            if (!operator_st.empty()) {
+                operator_st.pop();
+            }
+        }
+
+        else {
+            while (!operator_st.empty() && 
+                   precedence(operator_st.top()) >= precedence(equation[i])) {
+                int val2 = values_st.top();
+                values_st.pop();
+
+                int val1 = values_st.top();
+                values_st.pop();
+
+                char op = operator_st.top();
+                operator_st.pop();
+
+                values_st.push(applyOper(val1, val2, op, error));
+            }
+
+            operator_st.push(equation[i]);
+        }
+
+        if (error) return "Division by Zero Error";
+    }
+
+    while (!operator_st.empty()) {
+        int val2 = values_st.top();
+        values_st.pop();
+
+        int val1 = values_st.top();
+        values_st.pop();
+
+        int op = operator_st.top();
+        operator_st.pop();
+
+        values_st.push(applyOper(val1, val2, op, error));
+
+        if (error) {
+            return "Division by Zero Error";
         }
     }
+
+    return to_string(values_st.top());
 }
 
 string readFromFile() {
-    ifstream inputFile("./equations.txt");
+    ifstream inFile("./equations.txt");
+    ofstream outFile("results.txt");
 
-    if (!inputFile.is_open()) {
-        cout << "Error in opening file";
+    if (!inFile.is_open() || !outFile.is_open()) {
+        cout << "File Error: Unable to Open File equations.txt\n";
         return "";
     }
 
-    string line;
-    while (getline(inputFile, line)) {
+    string expr;
+
+    while (getline(inFile, expr)) {
+        if (expr.empty()) continue;
+
+        string result = evaluate(expr);
+        outFile << expr << " = " << result << endl;
     }
 
-    return line;
+    inFile.close();
+    outFile.close();
+
+    cout << "Resuls of Expressing is Wrtting Successfully\n";
+    cout << "Check: result.txt\n";
+
+    return "";
 }
 
 int main() {
+
+    readFromFile();
+
     // string equation = readFromFile();
     // cout << equation;
 
-    // return 0;
+    return 0;
 }

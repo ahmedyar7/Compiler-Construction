@@ -46,7 +46,9 @@ class EquationProcessor {
 
             if (tokens[i] == '(') {
                 ops.push(tokens[i]);
-            } else if (isdigit(tokens[i])) {
+            } 
+            
+            else if (isdigit(tokens[i])) {
                 int val = 0;
                 while (i < tokens.length() && isdigit(tokens[i])) {
                     val = (val * 10) + (tokens[i] - '0');
@@ -54,7 +56,9 @@ class EquationProcessor {
                 }
                 values.push(val);
                 i--;
-            } else if (tokens[i] == ')') {
+            } 
+            
+            else if (tokens[i] == ')') {
                 while (!ops.empty() && ops.top() != '(') {
                     int val2 = values.top();
                     values.pop();
@@ -65,7 +69,9 @@ class EquationProcessor {
                     values.push(applyOp(val1, val2, op, error));
                 }
                 if (!ops.empty()) ops.pop();
-            } else {
+            } 
+            
+            else {
                 while (!ops.empty() &&
                        precedence(ops.top()) >= precedence(tokens[i])) {
                     int val2 = values.top();
@@ -78,6 +84,8 @@ class EquationProcessor {
                 }
                 ops.push(tokens[i]);
             }
+
+            
             if (error) return "Division by Zero";
         }
 
