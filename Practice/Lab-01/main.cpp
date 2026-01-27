@@ -38,96 +38,97 @@ int applyOper(int a, int b, char op, bool& error) {
 }
 
 string evaluate(string equation) {
-    /**
-     * Initialize 2 Stack:
-     * 1. Operator Stack
-     * 2. Operand Stack
-     */
-
-    stack<char> operator_st;
-    stack<int> values_st;
+    // Practice Version
+    stack<int> values;
+    stack<char> ops;
 
     bool error = false;
 
     for (int i = 0; i < equation.length(); i++) {
+        // handling whitespaces
         if (equation[i] == ' ') continue;
 
-        // Pushing ( to the operator_st
-        if (equation[i] == '(') {
-            operator_st.push(equation[i]);
-        }
-
-        else if (isdigit(equation[i])) {
-            // Multi digit number like 150
-            // Combining them into one single number
-
+        // tokenization
+        if (isdigit(equation[i])) {
             int val = 0;
+
             while (i < equation.length() && isdigit(equation[i])) {
                 val = (val * 10) + (equation[i] - '0');
                 i++;
             }
-            values_st.push(val);
+            values.push(val);
             i--;
         }
 
+        // opening bracket
+        else if (equation[i] == '(') {
+            ops.push(equation[i]);
+        }
+
+        // calcuation till closing bracket is found
         else if (equation[i] == ')') {
-            while (!operator_st.empty() && operator_st.top() != '(') {
-                int val2 = values_st.top();
-                values_st.pop();
+            while (!ops.empty() && ops.top() != '(') {
+                int val2 = values.top();
+                values.pop();
 
-                int val1 = values_st.top();
-                values_st.pop();
+                int val1 = values.top();
+                values.pop();
 
-                char op = operator_st.top();
-                operator_st.pop();
+                char op = ops.top();
+                ops.pop();
 
-                values_st.push(applyOper(val1, val2, op, error));
+                values.push(applyOper(val1, val2, op, error));
+
+                if (error) {
+                    return "Division Error Occured";
+                }
             }
 
-            if (!operator_st.empty()) {
-                operator_st.pop();
+            if (!ops.empty()) {
+                ops.pop();
             }
         }
 
+        // Checking the Precedence
         else {
-            while (!operator_st.empty() && 
-                   precedence(operator_st.top()) >= precedence(equation[i])) {
-                int val2 = values_st.top();
-                values_st.pop();
+            while (!ops.empty() &&
+                   precedence(ops.top()) >= precedence(equation[i])) {
+                int val2 = values.top();
+                values.pop();
 
-                int val1 = values_st.top();
-                values_st.pop();
+                int val1 = values.top();
+                values.pop();
 
-                char op = operator_st.top();
-                operator_st.pop();
+                char op = ops.top();
+                ops.pop();
 
-                values_st.push(applyOper(val1, val2, op, error));
+                values.push(applyOper(val1, val2, op, error));
+
+                if (error) {
+                    return "Division Error Occured";
+                }
             }
 
-            operator_st.push(equation[i]);
-        }
-
-        if (error) return "Division by Zero Error";
-    }
-
-    while (!operator_st.empty()) {
-        int val2 = values_st.top();
-        values_st.pop();
-
-        int val1 = values_st.top();
-        values_st.pop();
-
-        int op = operator_st.top();
-        operator_st.pop();
-
-        values_st.push(applyOper(val1, val2, op, error));
-
-        if (error) {
-            return "Division by Zero Error";
+            ops.push(equation[i]);
         }
     }
 
-    return to_string(values_st.top());
+    while (!ops.empty()) {
+        int val2 = values.top();
+        values.pop();
+
+        int val1 = values.top();
+        values.pop();
+
+        char op = ops.top();
+        ops.pop();
+
+        values.push(applyOper(val1, val2, op, error));
+
+        if (error) return "Division Error Occured";
+    }
+
+    return to_string(values.top());
 }
 
 string readFromFile() {
@@ -158,7 +159,6 @@ string readFromFile() {
 }
 
 int main() {
-
     readFromFile();
 
     // string equation = readFromFile();

@@ -24,6 +24,13 @@ int EqFileProcessor::applyOp(int a, int b, char op, bool& error) {
     return 0;
 }
 
+// Name: Ahmed Yar
+// CMS-ID: 480756
+// Semester: 6th
+// Course: Compile Construction
+// Instructor: Dr. Adnan Idrees
+// Lab-Engineer: Mr Safder Ali
+
 void EqFileProcessor::evaluate(const char* tokens, ostream& output) {
     Stack<int> values;
     Stack<char> ops;
@@ -71,6 +78,13 @@ void EqFileProcessor::evaluate(const char* tokens, ostream& output) {
             return;
         }
     }
+
+    // Name: Ahmed Yar
+    // CMS-ID: 480756
+    // Semester: 6th
+    // Course: Compile Construction
+    // Instructor: Dr. Adnan Idrees
+    // Lab-Engineer: Mr Safder Ali
 
     while (!ops.empty()) {
         int val2 = values.top();
