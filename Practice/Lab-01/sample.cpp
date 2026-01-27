@@ -41,7 +41,9 @@ int applyOper(int a, int b, char op, bool& error) {
 void evaluate(const char* equation, char* resultBuffer) {
     stack<int> values;
     stack<char> ops;
+
     bool error = false;
+
     int len = strlen(equation);
 
     for (int i = 0; i < len; i++) {
@@ -56,36 +58,49 @@ void evaluate(const char* equation, char* resultBuffer) {
             }
             values.push(val);
             i--;
-        } else if (equation[i] == '(') {
+        }
+
+        else if (equation[i] == '(') {
             ops.push(equation[i]);
-        } else if (equation[i] == ')') {
+        }
+
+        else if (equation[i] == ')') {
             while (!ops.empty() && ops.top() != '(') {
                 int val2 = values.top();
                 values.pop();
+
                 int val1 = values.top();
                 values.pop();
+
                 char op = ops.top();
                 ops.pop();
 
                 values.push(applyOper(val1, val2, op, error));
+
                 if (error) {
                     strcpy(resultBuffer, "Division Error Occurred");
                     return;
                 }
             }
+
             if (!ops.empty()) ops.pop();
-        } else {
+        }
+
+        else {
             // Operator handling
             while (!ops.empty() &&
                    precedence(ops.top()) >= precedence(equation[i])) {
                 int val2 = values.top();
                 values.pop();
+
                 int val1 = values.top();
                 values.pop();
+
                 char op = ops.top();
                 ops.pop();
 
                 values.push(applyOper(val1, val2, op, error));
+
                 if (error) {
                     strcpy(resultBuffer, "Division Error Occurred");
                     return;
@@ -98,12 +113,15 @@ void evaluate(const char* equation, char* resultBuffer) {
     while (!ops.empty()) {
         int val2 = values.top();
         values.pop();
+
         int val1 = values.top();
         values.pop();
+
         char op = ops.top();
         ops.pop();
 
         values.push(applyOper(val1, val2, op, error));
+
         if (error) {
             strcpy(resultBuffer, "Division Error Occurred");
             return;
@@ -113,7 +131,9 @@ void evaluate(const char* equation, char* resultBuffer) {
     // Convert the final integer result to a char array
     if (!values.empty()) {
         snprintf(resultBuffer, MAX_RES_SIZE, "%d", values.top());
-    } else {
+    }
+
+    else {
         strcpy(resultBuffer, "0");
     }
 }
