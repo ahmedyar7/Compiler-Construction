@@ -5,9 +5,8 @@
 
 using namespace std;
 
-// CONSTANTS for buffer management
-const int MAX_EXPR_BUFFER = 256;
-const int MAX_RESULT_BUFFER = 64;
+const int RESULTS_STRING_BUFFER = 64;
+const int EXPRESSION_BUFFER = 256;
 
 int precedence(char op) {
     if (op == '+' || op == '-') return 1;
@@ -16,48 +15,132 @@ int precedence(char op) {
     return 0;
 }
 
-int applyOp(int a, int b, char op, bool& error) {
+int applyOps(int a, int b, char op, bool& error) {
     switch (op) {
         case '+':
             return a + b;
+
         case '-':
             return a - b;
+
         case '*':
             return a * b;
+
         case '/':
-            if (b == 0) return error = true;
+            if (b == 0) {
+                error = true;
+            }
             return a / b;
+
         case '%':
-            if (b == 0) return error = true;
+            if (b == 0) {
+                error = true;
+            }
             return a % b;
     }
 
     return 0;
 }
 
-void evalute(char* equation) {
+void evaluate(char* eq, char* resultStr) {
     stack<int> values;
     stack<char> ops;
 
+    int strLen = strlen(eq);
     bool error = false;
-    int strLen = strlen(equation);
 
     for (int i = 0; i < strLen; i++) {
-
-        if(equation[i] == ' ' || equation[i] == '\r' || equation[i] == '\n'){
+        if (eq[i] == ' ' || eq[i] == '\r' || eq[i] == '\n') {
             continue;
         }
 
-        if(equation[i] == '('){
-            ops.push(equation[i]);
+        if (isdigit(eq[i])) {
+            int val = 0;
+            while (i < strLen && isdigit(eq[i])) {
+                val = (val * 10) + (eq[i] - '0');
+                i++;
+            }
+            values.push(val);
+            i--;
         }
 
-        else if(equation[i] == ')'){
+        else if (eq[i] == '(') {
+            ops.push(eq[i]);
+        }
 
-            while(!ops.empty() && ops.top() != '('){
-                
+        else if (eq[i] == ')') {
+            while (!ops.empty() && ops.top() != '(') {
+                int val2 = values.top();
+                values.pop();
+
+                int val1 = values.top();
+                values.pop();
+
+                char op = ops.top();
+                ops.pop();
+
+                values.push(applyOps(val1, val2, op, error));
+
+                if (error) {
+                    strcpy(resultStr, "Division Error");
+                    return;
+                }
+            }
+
+            if (!ops.empty()) {
+                ops.pop();
             }
         }
+
+        else {
+            while (!ops.empty() && precedence(ops.top()) >= precedence(eq[i])) {
+                int val2 = values.top();
+                values.pop();
+
+                int val1 = values.top();
+                values.pop();
+
+                char op = ops.top();
+                ops.pop();
+
+                values.push(applyOps(val1, val2, op, error));
+
+                if (error) {
+                    strcpy(resultStr, "DIVISION ERROR");
+                    return;
+                }
+            }
+
+            ops.push(eq[i]);
+        }
+    }
+
+    while (!ops.empty()) {
+        int val2 = values.top();
+        values.pop();
+
+        int val1 = values.top();
+        values.pop();
+
+        char op = ops.top();
+        ops.pop();
+
+        values.push(applyOps(val1, val2, op, error));
+
+        if (error) {
+            strcpy(resultStr, "Division error");
+            return;
+        }
+    }
+
+    if (!values.empty()) {
+        snprintf(resultStr, RESULTS_STRING_BUFFER, "%d", values.top());
+        return;
+    }
+
+    else {
+        strcpy(resultStr, "0");
+        return;
     }
 }
 
@@ -65,21 +148,31 @@ void processFile() {
     ifstream inFile("./equations.txt");
     ofstream outFile("./results.txt");
 
-    if (!inFile.is_open() || !outFile.is_open()) {
-        cout << "Failed to open the file \n";
+    if (! inFile.is_open() ||! outFile.is_open()) {
+        cout << "Error in Opening and closing of file" << endl;
         return;
     }
 
-    char expr[MAX_EXPR_BUFFER];
-    char resultStr[MAX_RESULT_BUFFER];
+    char expr[EXPRESSION_BUFFER];
+    char resultStr[RESULTS_STRING_BUFFER];
 
-    while (inFile.getline(expr, MAX_RESULT_BUFFER)) {
-        if (strlen(expr) <= 1) continue;
+    while (inFile.getline(expr, EXPRESSION_BUFFER)) {
+        if (strlen(expr) < 1) continue;
 
+        evaluate(expr,resultStr);
         outFile << expr << " = " << resultStr << endl;
     }
-    cout << "finised writing content to file results.txt\n";
+
+    inFile.close();
+    outFile.close();
+
+    outFile << "--- FINISHED WRITING THE THE FILE (results.txt) ---";
+
     return;
 }
 
-int main() { return 0; }
+int main() {
+    processFile();
+
+    return 0;
+}
