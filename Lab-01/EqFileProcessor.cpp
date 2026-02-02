@@ -1,125 +1,199 @@
-#include "EqFileProcessor.h"
-
+#include <cstdio>   // For snprintf
+#include <cstring>  // For strlen
 #include <fstream>
 #include <iostream>
 
 using namespace std;
 
-int EqFileProcessor::getPrecedence(char op) {
-    if (op == '+' || op == '-') return 1;
-    if (op == '*' || op == '/' || op == '%') return 2;
-    return 0;
-}
+// Constants for buffer sizes
+const int MAX_EXPR_SIZE = 256;
+const int MAX_RES_SIZE = 64;
+const int STACK_CAPACITY = 100;
 
-int EqFileProcessor::applyOp(int a, int b, char op, bool& error) {
-    if ((op == '/' || op == '%') && b == 0) {
-        error = true;
+// --- Custom Stack Implementation ---
+template <typename T>
+class MyStack {
+   private:
+    T data[STACK_CAPACITY];
+    int topIndex;
+
+   public:
+    MyStack() : topIndex(-1) {}
+
+    void push(T val) {
+        if (topIndex < STACK_CAPACITY - 1) {
+            data[++topIndex] = val;
+        }
+    }
+
+    void pop() {
+        if (topIndex >= 0) {
+            topIndex--;
+        }
+    }
+
+    T top() const { return data[topIndex]; }
+
+    bool empty() const { return topIndex == -1; }
+};
+
+// --- Evaluation Logic ---
+
+class EquationProcessor {
+   private:
+   public:
+    int precedence(char op) {
+        if (op == '+' || op == '-') return 1;
+        if (op == '*' || op == '/' || op == '%') return 2;
         return 0;
     }
-    if (op == '+') return a + b;
-    if (op == '-') return a - b;
-    if (op == '*') return a * b;
-    if (op == '/') return a / b;
-    if (op == '%') return a % b;
+
+    int applyOper(int a, int b, char op, bool& error) {
+        if (op == '+') return a + b;
+        if (op == '-') return a - b;
+        if (op == '*') return a * b;
+        if (op == '/') {
+            if (b == 0) {
+                error = true;
+                return 0;
+            }
+            return a / b;
+        }
+        if (op == '%') {
+            if (b == 0) {
+                error = true;
+                return 0;
+            }
+            return a % b;
+        }
+        return 0;
+    }
+
+    void evaluate(const char* equation, char* resultBuffer) {
+        MyStack<int> values;
+        MyStack<char> ops;
+        bool error = false;
+        int len = strlen(equation);
+
+        for (int i = 0; i < len; i++) {
+            if (isspace(equation[i])) continue;
+
+            if (isdigit(equation[i])) {
+                int val = 0;
+
+                while (i < len && isdigit(equation[i])) {
+                    val = (val * 10) + (equation[i] - '0');
+                    i++;
+                }
+
+                values.push(val);
+                i--;
+            }
+
+            else if (equation[i] == '(') {
+                ops.push(equation[i]);
+            }
+
+            else if (equation[i] == ')') {
+                while (!ops.empty() && ops.top() != '(') {
+                    int val2 = values.top();
+                    values.pop();
+
+                    int val1 = values.top();
+                    values.pop();
+
+                    char op = ops.top();
+                    ops.pop();
+
+                    values.push(applyOper(val1, val2, op, error));
+
+                    if (error) {
+                        strcpy(resultBuffer, "Division Error Occurred");
+                        return;
+                    }
+                }
+
+                if (!ops.empty()) ops.pop();  // Pop '('
+            }
+
+            else {
+                // Operator handling
+                while (!ops.empty() &&
+                       precedence(ops.top()) >= precedence(equation[i])) {
+                    int val2 = values.top();
+                    values.pop();
+
+                    int val1 = values.top();
+                    values.pop();
+
+                    char op = ops.top();
+                    ops.pop();
+
+                    values.push(applyOper(val1, val2, op, error));
+
+                    if (error) {
+                        strcpy(resultBuffer, "Division Error Occurred");
+                        return;
+                    }
+                }
+
+                ops.push(equation[i]);
+            }
+        }
+
+        while (!ops.empty()) {
+            int val2 = values.top();
+            values.pop();
+
+            int val1 = values.top();
+            values.pop();
+
+            char op = ops.top();
+            ops.pop();
+
+            values.push(applyOper(val1, val2, op, error));
+
+            if (error) {
+                strcpy(resultBuffer, "Division Error Occurred");
+                return;
+            }
+        }
+
+        if (!values.empty())
+            snprintf(resultBuffer, MAX_RES_SIZE, "%d", values.top());
+
+        else
+            strcpy(resultBuffer, "0");
+    }
+
+    void processFiles() {
+        ifstream inFile("equations.txt");
+        ofstream outFile("results.txt");
+
+        if (!inFile.is_open() || !outFile.is_open()) {
+            cout << "File Error: Unable to open required files.\n";
+            return;
+        }
+
+        char expr[MAX_EXPR_SIZE];
+        char resultStr[MAX_RES_SIZE];
+
+        while (inFile.getline(expr, MAX_EXPR_SIZE)) {
+            if (strlen(expr) <= 1) continue;
+
+            evaluate(expr, resultStr);
+            outFile << expr << " = " << resultStr << endl;
+        }
+
+        inFile.close();
+        outFile.close();
+
+        cout << "Results written successfully to results.txt\n";
+    }
+};
+
+int main() {
+    EquationProcessor().processFiles();
+
     return 0;
-}
-
-// Name: Ahmed Yar
-// CMS-ID: 480756
-// Semester: 6th
-// Course: Compile Construction
-// Instructor: Dr. Adnan Idrees
-// Lab-Engineer: Mr Safder Ali
-
-void EqFileProcessor::evaluate(const char* tokens, ostream& output) {
-    Stack<int> values;
-    Stack<char> ops;
-    bool error = false;
-
-    for (int i = 0; tokens[i] != '\0'; i++) {
-        if (tokens[i] == ' ') continue;
-
-        if (tokens[i] == '(') {
-            ops.push(tokens[i]);
-        } else if (isdigit(tokens[i])) {
-            int val = 0;
-            while (tokens[i] != '\0' && isdigit(tokens[i])) {
-                val = (val * 10) + (tokens[i] - '0');
-                i++;
-            }
-            values.push(val);
-            i--;
-        } else if (tokens[i] == ')') {
-            while (!ops.empty() && ops.top() != '(') {
-                int val2 = values.top();
-                values.pop();
-                int val1 = values.top();
-                values.pop();
-                char op = ops.top();
-                ops.pop();
-                values.push(applyOp(val1, val2, op, error));
-            }
-            if (!ops.empty()) ops.pop();
-        } else {
-            while (!ops.empty() &&
-                   getPrecedence(ops.top()) >= getPrecedence(tokens[i])) {
-                int val2 = values.top();
-                values.pop();
-                int val1 = values.top();
-                values.pop();
-                char op = ops.top();
-                ops.pop();
-                values.push(applyOp(val1, val2, op, error));
-            }
-            ops.push(tokens[i]);
-        }
-        if (error) {
-            output << "Division by Zero";
-            return;
-        }
-    }
-
-    // Name: Ahmed Yar
-    // CMS-ID: 480756
-    // Semester: 6th
-    // Course: Compile Construction
-    // Instructor: Dr. Adnan Idrees
-    // Lab-Engineer: Mr Safder Ali
-
-    while (!ops.empty()) {
-        int val2 = values.top();
-        values.pop();
-        int val1 = values.top();
-        values.pop();
-        char op = ops.top();
-        ops.pop();
-        values.push(applyOp(val1, val2, op, error));
-        if (error) {
-            output << "Division by Zero";
-            return;
-        }
-    }
-
-    output << values.top();
-}
-
-void EqFileProcessor::run(const char* inputPath, const char* outputPath) {
-    ifstream inputFile(inputPath);
-    ofstream outputFile(outputPath);
-
-    if (!inputFile.is_open() || !outputFile.is_open()) {
-        cerr << "File Error" << endl;
-        return;
-    }
-
-    char expression[256];
-    while (inputFile.getline(expression, 256)) {
-        if (expression[0] == '\0') continue;
-        outputFile << expression << " = ";
-        evaluate(expression, outputFile);
-        outputFile << endl;
-    }
-
-    inputFile.close();
-    outputFile.close();
 }
