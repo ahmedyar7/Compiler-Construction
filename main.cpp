@@ -5,8 +5,8 @@
 
 using namespace std;
 
-const int MAX_EXPRESSION_SIZE = 256;
-const int MAX_RESULT_SIZE = 64;
+int const MAX_RESULT_SIZE = 64;
+int const MAX_EXPR_SIZE = 256;
 
 int precedence(char op) {
     if (op == '+' || op == '-') return 1;
@@ -27,7 +27,6 @@ int applyOps(int a, int b, char op, bool& error) {
             return a * b;
 
         case '/':
-
             if (b == 0) {
                 error = true;
                 return 0;
@@ -45,108 +44,92 @@ int applyOps(int a, int b, char op, bool& error) {
     return 0;
 }
 
-void evaluateEquation(char* equation, char* resultStr) {
+void calculate(char* eq, char* resultStr) {
     stack<int> values;
     stack<char> ops;
 
+    int strLength = strlen(eq);
     bool error = false;
 
-    int strLen = strlen(equation);
-
-    for (int i = 0; i < strLen; i++) {
-        if (equation[i] == ' ' || equation[i] == '\r' || equation[i] == '\n') {
+    for (int i = 0; i < strLength; i++) {
+        if (eq[i] == '\n' || eq[i] == '\r' || eq[i] == ' ') {
             continue;
         }
 
-        if (isdigit(equation[i])) {
+        if (isdigit(eq[i])) {
             int val = 0;
-
-            while (i < strLen && isdigit(equation[i])) {
-                val = (val * 10) + (equation[i] - '0');
+            while (i < strLength && isdigit(eq[i])) {
+                val = (val * 10) + (eq[i] - '0');
                 i++;
             }
-
             values.push(val);
             i--;
         }
 
-        else if (equation[i] == '(') {
-            ops.push(equation[i]);
+        else if (eq[i] == '(') {
+            ops.push(eq[i]);
         }
 
-        else if (equation[i] == ')') {
+        else if (eq[i] == ')') {
             while (!ops.empty() && ops.top() != '(') {
                 int val2 = values.top();
                 values.pop();
-
                 int val1 = values.top();
                 values.pop();
-
                 char op = ops.top();
                 ops.pop();
 
                 values.push(applyOps(val1, val2, op, error));
 
                 if (error) {
-                    strcpy(resultStr, "Division by Zero Error Message");
-                    return;
+                    strcpy(resultStr, "DIVISION ERROR");
                 }
             }
 
-            if (!ops.empty()) {
+            if(!ops.empty()) {
                 ops.pop();
             }
         }
 
         else {
-            while (!ops.empty() &&
-                   precedence(ops.top()) >= precedence(equation[i])) {
+            while (!ops.empty() && precedence(ops.top()) >= precedence(eq[i])) {
                 int val2 = values.top();
                 values.pop();
-
                 int val1 = values.top();
                 values.pop();
-
                 char op = ops.top();
                 ops.pop();
 
                 values.push(applyOps(val1, val2, op, error));
 
                 if (error) {
-                    strcpy(resultStr, "Division by Zero Error Message");
-                    return;
+                    strcpy(resultStr, "DIVISON ERROR");
                 }
             }
 
-            ops.push(equation[i]);
+            ops.push(eq[i]);
         }
     }
 
     while (!ops.empty()) {
         int val2 = values.top();
         values.pop();
-
         int val1 = values.top();
         values.pop();
-
         char op = ops.top();
         ops.pop();
 
         values.push(applyOps(val1, val2, op, error));
 
         if (error) {
-            strcpy(resultStr, "Division by zero error");
-            return;
+            strcpy(resultStr, "DIVISION ERROR");
         }
     }
 
     if (!values.empty()) {
         snprintf(resultStr, MAX_RESULT_SIZE, "%d", values.top());
-    }
-
-    else {
+    } else {
         strcpy(resultStr, "0");
-        return;
     }
 }
 
@@ -155,25 +138,22 @@ void processFile() {
     ofstream outFile("./results.txt");
 
     if (!inFile.is_open() && !outFile.is_open()) {
-        cout << "Failed to open input and output file";
-        return;
+        cout << "---- FAILED TO OPEN THE equations.txt and results.txt FILE ---"
+             << endl;
     }
 
-    char expr[MAX_EXPRESSION_SIZE];
-    char resultString[MAX_RESULT_SIZE];
+    char expr[MAX_EXPR_SIZE];
+    char resultStr[MAX_RESULT_SIZE];
 
-    while (inFile.getline(expr, MAX_EXPRESSION_SIZE)) {
-        if (strlen(expr) <= 1) continue;
-
-        evaluateEquation(expr, resultString);
-
-        outFile << expr << " = " << resultString << endl;
+    while (inFile.getline(expr, MAX_EXPR_SIZE)) {
+        if (strlen(expr) < 1) continue;
+        calculate(expr, resultStr);
+        outFile << expr << " = " << resultStr << endl;
     }
 
     inFile.close();
     outFile.close();
-
-    cout << "\n--- Finish Writing to the results.txt file ----\n";
+    cout << "--- RESULTS ARE WRITTEN IN THE result.txt" << endl;
 }
 
 int main() {
