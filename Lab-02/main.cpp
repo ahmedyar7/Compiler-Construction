@@ -1,119 +1,135 @@
-#include<iostream>
-#include<fstream>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
-class LexicalAnalyzer{
+class LexicalAnalyzer {
+   private:
 
-    private:
-    
-    bool isAlpha(char ch){
-        return (ch>='a' && ch<='z') || (ch<='A' && ch>='Z') || ch=='_';
-    }
+    bool isAlpha(char ch){return (ch>='a'&&ch<='z') || (ch>='A'&&ch<='Z') || (ch=='_');}
+    bool isDigit(char ch){return (ch>='0' && ch<='9');}
+    bool isSpace(char ch){return (ch=='\n'||ch=='\r'||ch==' ');}
 
-    bool isDigit(char ch){
-        return ch>='0' && ch <= '9';
-    }
-
-    bool isSpace(char ch){
-        return ch == ' ' || ch == '\r' || ch=='\n';
-    }
-
-    bool compare(const char *str1, const char *str2){
-
-        while(*str1 && *str2 && *str1 == *str2){
+    bool compare(const char* str1, const char* str2) {
+        while (*str1 && *str2 && *str1 == *str2) {
             str1++;
-            str2;
+            str2++;
         }
-
         return *str1 == *str2;
     }
 
-    bool checkKeyword(const char *buffer){
+    bool checkKeyword(const char* ch) {
+        const char* keywords[] = {"int",    "float",    "double", "bool",
+                                  "true",   "void",     "auto",   "false",
+                                  "return", "continue", "break"};
 
-        const char *keywords[] = {
-                    "alignas",      "alignof",     "and",         "and_eq",       asm
-        auto         bitand      bitor       bool        break
-        case         catch       char        char8_t     char16_t
-        char32_t     class       compl       concept     const
-        consteval    constexpr   constinit   continue    co_await
-        co_return    co_yield    decltype    default     delete
-        do           double      dynamic_cast else       enum
-        explicit     export      extern      false       float
-        for          friend      goto        if          inline
-        int          long        mutable     namespace   new
-        noexcept     not         not_eq      nullptr     operator
-        or           or_eq       private     protected   public
-        register     reinterpret_cast        requires    return
-        short        signed      sizeof      static      static_assert
-        static_cast  struct      switch      template    this
-        thread_local throw       true        try         typedef
-        typeid       typename    union       unsigned    using
-        virtual      void        volatile    wchar_t     while
-        xor          xor_eq
-
-        };
-
-        for(int i=0; i<(sizeof(keywords)/sizeof(keywords[0])); i++){
-
-            if(compare(buffer,keywords[i])){
+        for (int i = 0; i < sizeof(keywords) / sizeof(keywords[i]); i++) {
+            if (compare(ch, keywords[i])) {
                 return true;
             }
+        }
 
-        }        
         return false;
     }
 
-    public:
-
-    void scanner(const char*filename){
-
+   public:
+    void scanner(const char* filename) {
         ifstream infile(filename);
-
-        if(!infile || !infile.is_open()){
+        if (!infile) {
             return;
         }
 
+        int i = 0;
+        char buff[100];
         char ch;
-        char buffer[100];
-        int i;
 
-        while(infile.get(ch)){
+        while (infile.get(ch)) {
+            if (isSpace(ch)) {
+                continue;
+            }
 
-            if(isSpace(ch))continue;
-
-            if(isAlpha(ch)){
-
+            if (isAlpha(ch)) {
                 i = 0;
-                buffer[i++] = ch;
+                buff[i++] = ch;
 
-                while(infile.get(ch) && (isAlpha(ch) || isDigit(ch))){
-                    buffer[i++] = ch;
+                // using isdigit because the identifiyer can contains digits
+                while (infile.get(ch) && (isAlpha(ch) || isDigit(ch))) {
+                    buff[i++] = ch;
                 }
-
-                buffer[i] = '\0';
+                buff[i] = '\0';
                 infile.putback(ch);
 
-                if(checkKeyword(buffer)){
-                    cout << "Keyword: " << buffer << endl;
-                }
-                else{
-                    cout << "Indentifyer: " << buffer << endl;
-                }
+                if (checkKeyword(buff)) {
+                    cout << "Keywords: " << buff << ", ";
+                } 
+                else {
+                    cout << "Identifyers: " << buff << ", ";
+                } 
+
+                cout << endl;
+                
+                
             }
+
+            // else if (isdigit(ch)) {
+            //     i = 0;
+            //     buff[100];
+
+            //     bool hasDot = false;
+
+            //     while (infile.get(ch) && (isdigit(ch)  || (ch == '.' && !hasDot))) {
+            //         if (ch == '.') {
+            //             hasDot = true;
+            //         }
+
+            //         buff[i++] = ch;
+            //     }
+
+            //     buff[i] = '\0';
+            //     infile.putback(ch);
+
+            //     cout << "Numbers: " << buff << ", ";
+            // }
+
+            // // managing the relation operators
+            // else if (ch == '<' || ch == '>' || ch == '=' || ch == '!') {
+            //     char next;
+            //     infile.get(next);
+
+            //     if (next == '=')
+            //         cout << "relop: " << ch << "=" << endl;
+
+            //     else {
+            //         infile.putback(next);
+            //         if (ch == '=')
+            //             cout << "operator: =" << endl;
+            //         else
+            //             cout << "relop: " << ch << endl;
+            //     }
+            // }
+
+            // // managing operators
+            else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
+                     ch == '%') {
+                cout << "Operators: " << ch << " ";
+            }
+
+            // managing the delimiters
+            else if (ch == '{' || ch == '}' || ch == '(' || ch == ')' ||
+                     ch == '[' || ch == ']' || ch == ';' || ch == ':') {
+                cout << "Delimitors: " << ch << ", ";
+            }
+            cout << endl;
         }
 
         infile.close();
+
+        return;
     }
 };
 
-
-int main(){
-
+int main() {
     LexicalAnalyzer().scanner("./example.txt");
 
     return 0;
 }
-
-
-
