@@ -1,6 +1,11 @@
 int main(){
 
-    int x = 5;
+    int x = 2;
+    int y = 3;
+    int result = x+y;
+    float
+    bool
+    true false void
 
-    return 0;
+    return 0.0
 }
