@@ -106,39 +106,41 @@ class LexicalAnalyzer {
 
         inFile.close();
 
+        ofstream Fout("output.txt");
+
         // all keywords;
-        cout << "KEYWORDS: " << "{";
+        Fout << "KEYWORDS: " << "{";
         for (auto keys : KEYWORDS) {
-            cout << keys << "  ";
+            Fout << keys << "  ";
         }
         cout << "}" << endl;
-        ;
+        
 
         // all INDENTIFYERS
-        cout << "IDENTIFYERS: " << "{";
+        Fout << "IDENTIFYERS: " << "{";
         for (auto keys : INDENTIFYERS) {
-            cout << keys << " ";
+            Fout << keys << " ";
         }
-        cout << "}" << endl;
+        Fout << "}" << endl;
 
         // all digits
-        cout << "DIGITS: " << "{";
+        Fout << "DIGITS: " << "{";
         for (auto keys : DIGITS) {
-            cout << keys << " ";
+            Fout << keys << " ";
         }
-        cout << "}" << endl;
+        Fout << "}" << endl;
 
-        cout << "OPERATORS: " << "{";
+        Fout << "OPERATORS: " << "{";
         for (auto keys : OPERATORS) {
-            cout << keys << " ";
+            Fout << keys << " ";
         }
-        cout << "}" << endl;
+        Fout << "}" << endl;
 
-        cout << "DELIMITERS: " << "{";
+        Fout << "DELIMITERS: " << "{";
         for (auto keys : DELIMITERS) {
-            cout << keys << " ";
+            Fout << keys << " ";
         }
-        cout << "}" << endl;
+        Fout << "}" << endl;
     }
 };
 

@@ -1,0 +1,4 @@
+KEYWORDS: {int  main  int  int  int  float  bool  true  false  void  return  IDENTIFYERS: {x y result x y }
+DIGITS: {2 3 0.0 }
+OPERATORS: {+ }
+DELIMITERS: {( ) { ; ; ; } }
