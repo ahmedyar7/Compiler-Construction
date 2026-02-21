@@ -1,64 +1,58 @@
-#include <cstring>
 #include <iostream>
-
 using namespace std;
 
-char inputBuff[100];
+char input[1000];
 int pos = 0;
 
-char peek() { return inputBuff[pos]; }
-char get() { return inputBuff[pos++]; }
+char peek() { return input[pos]; }
+char get() { return input[pos++]; }
 void error(const char* msg) { throw msg; }
 
-double factor();
-double term();
 double expression();
+double term();
+double factor();
+double number();
 
-// number -> decimals and fractions
 double number() {
     double result = 0.0;
     double fraction = 1.0;
-
-    bool hasDigit = false;
-    bool hasFraction = false;
+    bool hasInteger = false;
+    bool hasDecimal = false;
 
     while (isdigit(peek())) {
         result = (result * 10) + (get() - '0');
-        hasDigit = true;
+        hasInteger = true;
     }
 
-    if (peek() == '.') {
-        get();
-
-        while (isdigit(peek())) {
-            fraction = fraction / 10.0;
-            result += (get() - '0') * fraction;
-            hasFraction = false;
-        }
+    if (isdigit(peek())) {
+        fraction = fraction / 10.0;
+        result += (get() - '0') * fraction;
+        hasDecimal = true;
     }
 
-    if (!hasDigit) {
-        error("Expected a number");
+    if (!hasDecimal) {
+        error("Not a valid number");
     }
 
     return result;
 }
 
-// factor -> parenthesis ( expression  )
 double factor() {
     if (peek() == '(') {
         get();
         double result = expression();
+
         if (peek() != ')') {
-            error("Missing matching parenthesis...");
+            error("Parenthesis donot matches...");
         }
-        get();
+
+        get();  // getting the closing parenthsis
         return result;
     }
+
     return number();
 }
 
-// term -> * and /
 double term() {
     double result = factor();
 
@@ -67,17 +61,16 @@ double term() {
         double rhs = factor();
 
         if (op == '*') {
-            result = result * rhs;
+            result *= rhs;
         }
 
         else if (op == '/') {
             if (rhs == 0) {
-                error("Division by zero error");
+                error("Divsion by zero error");
             }
-            result = result / rhs;
+            result /= rhs;
         }
     }
-
     return result;
 }
 
@@ -89,11 +82,11 @@ double expression() {
         double rhs = term();
 
         if (op == '+') {
-            result = result + rhs;
+            result += rhs;
         }
 
         else if (op == '-') {
-            result = result - rhs;
+            result -= rhs;
         }
     }
 
@@ -101,24 +94,21 @@ double expression() {
 }
 
 int main() {
-    cout << "Enter the Expression: " << endl;
-    cin.getline(inputBuff, 100);
+    cout << "Enter the Expression: ";
+    cin.getline(input, 1000);
 
     try {
         double result = expression();
 
-        if (inputBuff[pos] == '\0') {
-            error("Unexpected character at the end of input...");
+        if (input[pos] == '\0') {
+            error("Unexpected form of error...");
         }
-
-        cout << "Invalid Syntax = " << result << endl;
+        cout << "Syntax Error: " << result << endl;
     }
 
     catch (const char* msg) {
-        cout << "Syntax Error: " << msg << endl;
+        cout << msg << endl;
     }
 
     return 0;
 }
-
-// expr -> + and -
