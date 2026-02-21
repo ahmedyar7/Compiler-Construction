@@ -47,7 +47,6 @@ double factor();
 double number() {
     double result = 0.0;
     double fraction = 1.0;
-    bool isFraction = false;
     bool hasDigits = false;
 
     // Parse Integer part
