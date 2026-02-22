@@ -13,9 +13,9 @@ class SyntaxAnalysis {
     void error(const char* msg) { throw msg; }
 
     double expression();
-    double term();
-    double factor();
-    double number();
+    // double term();
+    // double factor();
+    // double number();
 
     double number() {
         double result = 0.0;

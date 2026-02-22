@@ -6,18 +6,27 @@ using namespace std;
 
 class Lexer {
    private:
+    bool isAlpha(char ch) {
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+               (ch == '_');
+    }
+    bool isDigit(char ch) { return ch >= '0' && ch <= '9'; }
+    bool isSpace(char ch) { return (ch == ' ' || ch == '\n' || ch == '\r'); }
+
     bool compare(const char* str1, const char* str2) {
         while (*str1 && *str2 && *str1 == *str2) {
             str1++;
             str2++;
         }
+
         return *str1 == *str2;
     }
 
-    bool findKeywords(const char* ch) {
-        const char* keywords[] = {
-            "int", "main", "bool",    "float",  "double", "continue", "break",
-            "if",  "else", "else if", "friend", "return", "break"};
+    bool findKeywords(char* ch) {
+        const char* keywords[] = {"int",    "float",  "double",   "char",
+                                  "void",   "cin",    "cout",     "bool",
+                                  "friend", "return", "continue", "break",
+                                  "if",     "else",   "else if"};
 
         for (int i = 0; i < sizeof(keywords) / sizeof(keywords[i]); i++) {
             if (compare(ch, keywords[i])) {
@@ -33,81 +42,73 @@ class Lexer {
         ifstream inFile("./example.txt");
         ofstream outFile("./output.txt");
 
+        if (!inFile) {
+            cout << "Unable to open the example.txt file...";
+            return;
+        }
+
         int i = 0;
         char ch;
         char buff[1024];
 
         while (inFile.get(ch)) {
-            if (isspace(ch)) {
+            if (isSpace(ch)) {
                 continue;
             }
 
-            if (isalpha(ch)) {
+            if (isAlpha(ch)) {
                 i = 0;
                 buff[i++] = ch;
 
-                while (inFile.get(ch) && (isalpha(ch) || isdigit(ch))) {
+                while (inFile.get(ch) && (isDigit(ch) || isAlpha(ch))) {
                     buff[i++] = ch;
                 }
+
                 buff[i] = '\0';
                 inFile.putback(ch);
 
-                if (findKeywords(buff)) {
-                    cout << "KEYWORDS: " << buff << endl;
-                }
+                if (findKeywords(buff))
+                    // cout << "Value:\n" << buff << "\tType" << "Keyword\n";
+                cout << "Keyword: " << buff << endl;
 
-                else {
-                    cout << "IDENTIFYER: " << buff << endl;
-                }
+                else
+                    cout << "Identifyers: " << buff << endl;
             }
 
-            else if (isdigit(ch)) {
-                int i = 0;
+            else if (isDigit(ch)) {
+                i = 0;
                 buff[i++] = ch;
                 bool hasDot = false;
 
                 while (inFile.get(ch) &&
-                       (isdigit(ch) || (ch == '.' && !hasDot))) {
+                       (isDigit(ch) || (ch == '.' && !hasDot))) {
                     if (ch == '.') {
                         hasDot = true;
                     }
                     buff[i++] = ch;
                 }
-                buff[i] = '\0';
+
+                buff[i++] = '\0';
                 inFile.putback(ch);
 
-                cout << "Digit: " << ch << endl;
-
+                cout << "DIGITS: " << buff << endl;
             }
 
-            else if (ch == '<' || ch == '<=' || ch == '>' || ch == '>=') {
-                char next;
-                inFile.get(next);
-
-                if (next == '=') {
-                } else {
-                }
-            }
-
-            else if (ch == '+' || ch == '-' || ch == '/' || ch == '*' ||
+            else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
                      ch == '%') {
-                cout << "OPERATOR: " << ch << endl;
+                cout << "OPERATORS: " << ch << endl;
             }
 
-            else if (ch == '(' || ch == ')' || ch == '[' || ch == ']' ||
-                     ch == '{' || ch == '}' || ch == ';' || ch == '.' ||
-                     ch == ':') {
+            else if (ch == '(' || ch == ';' || ch == '.' || ch == ':' ||
+                     ch == ')' || ch == '{' || ch == '}' || ch == '[' ||
+                     ch == ']') {
                 cout << "DELIMITER: " << ch << endl;
             }
         }
-
-        inFile.close();
-        outFile.close();
     }
 };
 
 int main() {
     Lexer().scanner();
-
     return 0;
 }

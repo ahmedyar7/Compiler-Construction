@@ -1,126 +1,114 @@
-#include <cstring>
 #include <iostream>
-
 using namespace std;
 
-char input[1000];
+char input[1024];
 int pos = 0;
 
-class SyntaxAnalysis {
-   public:
-    char peek() { return input[pos]; }
-    char get() { return input[pos++]; }
-    void error(const char* msg) { throw msg; }
+char peek() { return input[pos]; }
+char get() { return input[pos++]; }
+void error(const char* msg) { throw msg; }
 
-    double expression();
-    double term();
-    double factor();
-    double number();
+double expression();
+double term();
+double factor();
+double number();
 
-    double number() {
-        double result = 0.0;
-        double fraction = 1.0;
-        bool hasInteger = false;
+double number() {
+    bool hasInt = false;
+    double result = 0.0;
+    double fraction = 1.0;
+
+    while (isdigit(peek())) {
+        result = (result * 10) + (get() - '0');
+        hasInt = true;
+    }
+
+    if (peek() == '.') {
+        get();
 
         while (isdigit(peek())) {
-            result = (result * 10) + (get() - '0');
-            hasInteger = true;
+            fraction = fraction / 10.0;
+            result += (get() - '0') * fraction;
+            hasInt = true;
         }
-
-        if (peek() == '.') {
-            get();
-            while (isdigit(peek())) {
-                fraction /= 10.0;
-                result += (get() - '0') * fraction;
-                hasInteger = true;
-            }
-        }
-
-        if (!hasInteger) {
-            error("not a number");
-        }
-
-        return result;
     }
 
-    double factor() {
-        if (peek() == '(') {
-            get();
-            double result = expression();
+    if (!hasInt) {
+        error("Not a number");
+    }
+    return result;
+}
 
-            if (peek() != ')') {
-                error("Missing the parenthesis");
-            }
+double factor() {
+    if (peek() == '(') {
+        get();
 
-            get();
-            return result;
+        double expr = expression();
+        if (peek() != ')') {
+            error("Missing the matching parentheisis...");
         }
-
-        return number();
+        
+        get();
+        return expr;
     }
 
-    double term() {
-        double result = factor();
+    return number();
+}
 
-        while (peek() == '*' || peek() == '/') {
-            char op = get();
-            double rhs = factor();
+double term() {
+    double result = factor();
 
-            if (op == '*') {
-                result *= rhs;
-            }
+    while (peek() == '*' || peek() == '/') {
+        char op = get();
+        double rhs = factor();
 
-            else if (op == '/') {
-                if (rhs == 0) {
-                    error("Division by zero error...");
-                }
-                result = result / rhs;
-            }
+        if (op == '*') {
+            result *= rhs;
         }
 
-        return result;
-    }
-
-   public:
-    double expression() {
-        double result = term();
-
-        while (peek() == '+' || peek() == '-') {
-            char op = get();
-            double rhs = term();
-
-            if (op == '+') {
-                result += rhs;
+        if (op == '/') {
+            if (rhs == 0) {
+                error("Division in the error");
             }
-
-            else if (op == '-') {
-                result -= rhs;
-            }
+            result /= rhs;
         }
-
-        return result;
     }
-};
+    return result;
+}
+
+double expression() {
+    double result = term();
+
+    while (peek() == '+' || peek() == '-') {
+        char op = get();
+        double rhs = term();
+
+        if (op == '+') {
+            result += rhs;
+        }
+        if (op == '-') {
+            result -= rhs;
+        }
+    }
+    return result;
+}
 
 int main() {
-    SyntaxAnalysis sa = SyntaxAnalysis();
-
-    cout << "Enter the expression: " << endl;
-
-    cin.getline(input, 1000);
+    cout << "Enter the Expression: " << endl;
 
     try {
-        double result = sa.expression();
+        cin.getline(input, 1024);
+
+        double result = expression();
 
         if (input[pos] != '\0') {
-            sa.error("Unexpected error occured...");
+            error("Unexpected error occurred...");
         }
-
         cout << result << endl;
+
+    } catch (const char* error) {
+        cout << error << endl;
     }
 
-    catch (const char* msg) {
-        cout << msg << endl;
-    }
     return 0;
 }
