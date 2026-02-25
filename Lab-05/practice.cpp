@@ -1,8 +1,9 @@
+#include <cstring>
 #include <iostream>
 
 using namespace std;
 
-class SimpleParser {
+class RecursiveDescentParser {
    private:
     const char* input;
     int pos;
@@ -13,98 +14,70 @@ class SimpleParser {
         }
     }
 
-    char peek() {
-        skipWhiteSpaces();
-        return input[pos];
-    }
-
-    char get() {
-        skipWhiteSpaces();
-        return input[pos++];
-    }
+    char peek() { return input[pos]; }
+    char get() { return input[pos++]; }
 
    public:
-    SimpleParser(const char* str) : input(str), pos(0) {}
-
-    // void parse();   // parse -> parseE()
-    // void parseE();  // parseE()->parseT() {+|-}
-    // void parseT();  // parseT()->parseP() {*|/}
-    // void parseP();  // parseP()->parseF() {^}
-    // void parseF();  // parseF()
+    RecursiveDescentParser(const char* str) : input(str), pos(0) {}
 
     void parse() {
-        cout << "Checking: " << input << endl;
+        cout << "Reading the input " << input << endl;
         parseE();
 
-        if (peek() == '\0') {
-            cout << "Result: Valid Expression\n";
+        if (peek() != '\0') {
+            cout << "Valid Expression";
         } else {
-            cout << "Result: Syntax Error\n" << peek() << "\n";
+            cout << "Invalid Expression " << endl;
         }
+        cout << "\n+------------------------------------------+\n";
     }
 
     void parseE() {
         parseT();
-
         while (peek() == '+' || peek() == '-') {
-            cout << "Found OP: " << get() << endl;
+            cout << "Operator" << get() << endl;
             parseT();
         }
     }
 
     void parseT() {
         parseP();
-
         while (peek() == '*' || peek() == '/') {
-            cout << "Found Op" << get() << endl;
+            cout << "Operator: " << get() << endl;
             parseP();
         }
     }
-
     void parseP() {
         parseF();
-
-        while (peek() == '^') {
-            cout << "Found OP:" << get() << endl;
-            parseF();
+        if (peek() == '^') {
+            cout << "Operator: " << get() << endl;
+            parseP();
         }
     }
-
     void parseF() {
         char c = peek();
-
         if (c == '-') {
             get();
-            parse();
-        }
-
-        else if (c == '(') {
+            parseF();
+        } else if (c == '(') {
             get();
-            parseE();  // {+|-}
-
+            parseE();
             if (get() != ')') {
-                cout << "Error: Missing )" << endl;
+                cout << "MisMatched Parenthesis" << endl;
             }
-        }
-
-        else if (isalnum(c)) {
+        } else if (isalnum(c)) {
             while (isalnum(peek())) {
                 cout << get();
             }
-
-            cout << "(Value/ID) " << endl;
-        }
-
-        else {
-            cout << "Error: Unexpected " << c << endl;
+            cout << "[value/id] " << endl;
+        } else {
+            cout << "Unexpected error occured\n";
         }
     }
 };
 
 int main() {
-    // You can pass raw string literals directly
-    SimpleParser parser("3 * (4 + 5) ^ 2");
-    parser.parse();
+    RecursiveDescentParser("-5(10-2)+(20-0)").parse();
 
     return 0;
 }
