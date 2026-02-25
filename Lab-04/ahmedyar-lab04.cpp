@@ -1,126 +1,91 @@
-#include <cstring>
 #include <iostream>
+#include <cctype>
 
 using namespace std;
 
-char input[1000];
-int pos = 0;
+class SimpleParser {
+private:
+    const char* input; // Use a pointer instead of std::string
+    int pos;
 
-class SyntaxAnalysis {
-   public:
-    char peek() { return input[pos]; }
-    char get() { return input[pos++]; }
-    void error(const char* msg) { throw msg; }
-
-    double expression();
-    // double term();
-    // double factor();
-    // double number();
-
-    double number() {
-        double result = 0.0;
-        double fraction = 1.0;
-        bool hasInteger = false;
-
-        while (isdigit(peek())) {
-            result = (result * 10) + (get() - '0');
-            hasInteger = true;
-        }
-
-        if (peek() == '.') {
-            get();
-            while (isdigit(peek())) {
-                fraction /= 10.0;
-                result += (get() - '0') * fraction;
-                hasInteger = true;
-            }
-        }
-
-        if (!hasInteger) {
-            error("not a number");
-        }
-
-        return result;
+    void skipWhitespace() {
+        while (input[pos] != '\0' && isspace(input[pos])) pos++;
     }
 
-    double factor() {
-        if (peek() == '(') {
-            get();
-            double result = expression();
-
-            if (peek() != ')') {
-                error("Missing the parenthesis");
-            }
-
-            get();
-            return result;
-        }
-
-        return number();
+    char peek() {
+        skipWhitespace();
+        return input[pos]; // C-strings naturally end with '\0'
     }
 
-    double term() {
-        double result = factor();
-
-        while (peek() == '*' || peek() == '/') {
-            char op = get();
-            double rhs = factor();
-
-            if (op == '*') {
-                result *= rhs;
-            }
-
-            else if (op == '/') {
-                if (rhs == 0) {
-                    error("Division by zero error...");
-                }
-                result = result / rhs;
-            }
-        }
-
-        return result;
+    char get() {
+        skipWhitespace();
+        return (input[pos] != '\0') ? input[pos++] : '\0';
     }
 
-   public:
-    double expression() {
-        double result = term();
+public:
+    SimpleParser(const char* str) : input(str), pos(0) {}
 
+    void parse() {
+        cout << "Checking: " << input << endl;
+        parseE();
+        
+        if (peek() == '\0') 
+            cout << "Result: Valid Expression\n";
+        else 
+            cout << "Result: Syntax Error at '" << peek() << "'\n";
+        cout << "--------------------------" << endl;
+    }
+
+    // E -> T { (+|-) T }
+    void parseE() {
+        parseT();
         while (peek() == '+' || peek() == '-') {
-            char op = get();
-            double rhs = term();
-
-            if (op == '+') {
-                result += rhs;
-            }
-
-            else if (op == '-') {
-                result -= rhs;
-            }
+            cout << "Found Op: " << get() << endl;
+            parseT();
         }
+    }
 
-        return result;
+    // T -> P { (*|/) P }
+    void parseT() {
+        parseP();
+        while (peek() == '*' || peek() == '/') {
+            cout << "Found Op: " << get() << endl;
+            parseP();
+        }
+    }
+
+    // P -> F [ ^ P ] (Right Associative Exponents)
+    void parseP() {
+        parseF();
+        if (peek() == '^') {
+            cout << "Found Op: " << get() << endl;
+            parseP(); 
+        }
+    }
+
+    // F -> -F | (E) | id | num
+    void parseF() {
+        char c = peek();
+        if (c == '-') {
+            get(); 
+            parseF();
+        } else if (c == '(') {
+            get(); 
+            parseE();
+            if (get() != ')') cout << "Error: Missing ')'\n";
+        } else if (isalnum(c)) {
+            while (isalnum(peek())) cout << get(); 
+            cout << " (Value/ID)" << endl;
+        } else {
+            cout << "Error: Unexpected '" << c << "'\n";
+        }
     }
 };
 
 int main() {
-    SyntaxAnalysis sa = SyntaxAnalysis();
+    // You can pass raw string literals directly
+    SimpleParser parser("3 * (4 + 5) ^ 2");
+    parser.parse();
 
-    cout << "Enter the expression: " << endl;
-
-    cin.getline(input, 1000);
-
-    try {
-        double result = sa.expression();
-
-        if (input[pos] != '\0') {
-            sa.error("Unexpected error occured...");
-        }
-
-        cout << result << endl;
-    }
-
-    catch (const char* msg) {
-        cout << msg << endl;
-    }
     return 0;
 }

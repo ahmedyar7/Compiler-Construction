@@ -1,176 +1,110 @@
-#include <cstring>
 #include <iostream>
 
 using namespace std;
 
-class Parser {
+class SimpleParser {
    private:
     const char* input;
     int pos;
-    int depth;
 
-    void printIndent() {
-        for (int i = 0; i < depth; i++) {
-            cout << " ";
-        }
-    }
-
-    void skipWhiteSpace() {
+    void skipWhiteSpaces() {
         while (input[pos] != '\0' && isspace(input[pos])) {
             pos++;
         }
     }
 
     char peek() {
-        skipWhiteSpace();
+        skipWhiteSpaces();
         return input[pos];
     }
 
     char get() {
-        skipWhiteSpace();
-        if (input[pos] != '\0') {
-            return input[pos++];
-        }
-        return '\0';
-    }
-
-    void matchNumber(char* buffer) {
-        skipWhiteSpace();
-
-        int i = 0;
-
-        while (input[pos] != '\0' && isdigit(input[pos])) {
-            buffer[i++] = input[pos++];
-        }
-
-        buffer[i] = '\0';
-    }
-
-    void matchId(char* buffer) {
-        skipWhiteSpace();
-        int i = 0;
-
-        while (input[pos] != '\0' && isalpha(input[pos])) {
-            buffer[i++] = input[pos++];
-        }
-        buffer[i] = '\0';
+        skipWhiteSpaces();
+        return input[pos++];
     }
 
    public:
-    Parser(const char* str) : input(str), pos(0), depth(0) {}
+    SimpleParser(const char* str) : input(str), pos(0) {}
 
-    // main parsing entry point
+    // void parse();   // parse -> parseE()
+    // void parseE();  // parseE()->parseT() {+|-}
+    // void parseT();  // parseT()->parseP() {*|/}
+    // void parseP();  // parseP()->parseF() {^}
+    // void parseF();  // parseF()
+
     void parse() {
-        cout << "Parsing " << input << endl;
+        cout << "Checking: " << input << endl;
         parseE();
 
-        // if we have finished E but haven't reached the null terminator
-        // it's invalid
-
-        if (peek() != '0') {
-            cout << "Syntax Error: Unexpected characters at the end: "
-                 << &input[pos] << endl;
+        if (peek() == '\0') {
+            cout << "Result: Valid Expression\n";
+        } else {
+            cout << "Result: Syntax Error\n" << peek() << "\n";
         }
-
-        else {
-            cout << "Successfully parsed!" << endl;
-        }
-        cout << "---------------------------\n";
     }
 
-    // E -> T { (+|-) T}
     void parseE() {
-        printIndent();
-        cout << "-> parseE()" << endl;
-        depth++;
-
-        parseP();
+        parseT();
 
         while (peek() == '+' || peek() == '-') {
-            char op = get();
-            printIndent();
-            cout << "Operator: " << op << endl;
+            cout << "Found OP: " << get() << endl;
+            parseT();
+        }
+    }
+
+    void parseT() {
+        parseP();
+
+        while (peek() == '*' || peek() == '/') {
+            cout << "Found Op" << get() << endl;
             parseP();
         }
-
-        depth--;
-        printIndent();
-        cout << "<- parseE() return " << endl;
     }
 
     void parseP() {
-        printIndent();
-        cout << "-> parseP()" << endl;
-        depth++;
-
         parseF();
 
-        if (peek() == '^') {
-            char op = get();
-            printIndent();
-
-            cout << "Operator: " << op << endl;
-            parseP();
+        while (peek() == '^') {
+            cout << "Found OP:" << get() << endl;
+            parseF();
         }
-        depth--;
-        printIndent();
-        cout << "<- parseP()" << endl;
     }
 
     void parseF() {
-        printIndent();
-        cout << "-> parseF()\n";
-        depth++;
+        char c = peek();
 
-        if (peek() == '-') {
-            char op = get();
-            printIndent();
-            cout << "Unary: " << op << "\n";
-            parseF();
-        }
-
-        else if (peek() == '(') {
+        if (c == '-') {
             get();
-            printIndent();
+            parse();
+        }
 
-            cout << "Matched '('\n";
-            parseE();
+        else if (c == '(') {
+            get();
+            parseE();  // {+|-}
 
-            if (peek() == ')') {
-                get();
-                printIndent();
-                cout << "Matched ')'\n";
-            }
-
-            else {
-                printIndent();
-                cout << "Syntax Error: Expected ')'" << endl;
+            if (get() != ')') {
+                cout << "Error: Missing )" << endl;
             }
         }
 
-        else if (isdigit(peek())) {
-            char num[64];
-            matchNumber(num);
-            printIndent();
-            cout << "number: " << num << endl;
-        }
+        else if (isalnum(c)) {
+            while (isalnum(peek())) {
+                cout << get();
+            }
 
-        else if (isalpha(peek())) {
-            char id[64];
-            matchId(id);
-            printIndent();
-            cout << "Identiyer: " << id << endl;
+            cout << "(Value/ID) " << endl;
         }
 
         else {
-            printIndent();
-            cout << "Syntax Error: Unexpected Token: " << peek() << endl;
+            cout << "Error: Unexpected " << c << endl;
         }
-
-        depth--;
-        printIndent();
-        cout << "<- parseF() return\n";
     }
 };
 
-int main() { return 0; }
+int main() {
+    // You can pass raw string literals directly
+    SimpleParser parser("3 * (4 + 5) ^ 2");
+    parser.parse();
+
+    return 0;
+}
