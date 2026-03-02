@@ -29,32 +29,32 @@ class RecursiveDescentParser {
     void parse() {
         cout << "Reading Input: " << input << endl;
         parseE();
+        cout << "\n===============================================\n";
         if (input[pos] == '\0') {
             cout << "Valid Expression: " << endl;
         } else {
             cout << "Invalid Expression: \n";
             cout << "Syntax Error: " << peek() << endl;
         }
-        cout << "\n===============================================\n";
     }
     void parseE() {
         parseT();
         while (peek() == '+' || peek() == '-') {
-            cout << get() << endl;
+            cout << get() << " ";
             parseT();
         }
     }
     void parseT() {
         parseP();
         while (peek() == '*' || peek() == '/') {
-            cout << get() << endl;
+            cout << get() << " ";
             parseP();
         }
     }
     void parseP() {
         parseF();
         if (peek() == '^') {
-            cout << get() << endl;
+            cout << get() << " ";
             parseP();
         }
     }
