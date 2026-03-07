@@ -1,5 +1,5 @@
 
-#line 3 "lex.yy.c"
+#line 2 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -463,16 +463,16 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "scanner.l"
-#line 2 "scanner.l"
+#line 1 ".\\practice_lex.l"
+#line 2 ".\\practice_lex.l"
 #include <iostream>
 #include <cstdio>
 using namespace std;
 
 int token_count = 0;
-#line 474 "lex.yy.c"
+#line 473 "lex.yy.c"
 /* Definitions: Helper Regex */
-#line 476 "lex.yy.c"
+#line 475 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -689,9 +689,9 @@ YY_DECL
 		}
 
 	{
-#line 14 "scanner.l"
+#line 14 ".\\practice_lex.l"
 
-#line 695 "lex.yy.c"
+#line 694 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -750,57 +750,57 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 15 "scanner.l"
+#line 15 ".\\practice_lex.l"
 { cout << "COMMENT: " << yytext << endl; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 16 "scanner.l"
+#line 16 ".\\practice_lex.l"
 { cout << "KEYWORD: " << yytext << endl; }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 17 "scanner.l"
+#line 17 ".\\practice_lex.l"
 { cout << "STRING_LITERAL: " << yytext << endl; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 18 "scanner.l"
+#line 18 ".\\practice_lex.l"
 { cout << "IDENTIFIER: " << yytext << endl; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 19 "scanner.l"
+#line 19 ".\\practice_lex.l"
 { cout << "NUMBER: " << yytext << endl; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 20 "scanner.l"
+#line 20 ".\\practice_lex.l"
 { cout << "OPERATOR: " << yytext << endl; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 21 "scanner.l"
+#line 21 ".\\practice_lex.l"
 { cout << "PUNCTUATION: " << yytext << endl; }
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 22 "scanner.l"
+#line 22 ".\\practice_lex.l"
 { /* Skip whitespace */ }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 23 "scanner.l"
+#line 23 ".\\practice_lex.l"
 { cout << "UNKNOWN: " << yytext << endl; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 24 "scanner.l"
+#line 24 ".\\practice_lex.l"
 ECHO;
 	YY_BREAK
-#line 804 "lex.yy.c"
+#line 803 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1805,7 +1805,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 24 "scanner.l"
+#line 24 ".\\practice_lex.l"
 
 
 int yywrap() { return 1; }
