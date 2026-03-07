@@ -1,45 +1,46 @@
 %{
 #include <iostream>
-#include <cstdio>
-using namespace std;
+#include <stdio.h>
 
-int token_count = 0;
+using namespace std;
 %}
 
-/* Definitions: Helper Regex */
+/* Defination regarding the Regular Expression*/
+
 DIGIT    [0-9]
 ID       [a-zA-Z_][a-zA-Z0-9_]*
-STRING   \"[^\"]*\"
+STRINGS  \"[^\"]*\"
 
+/* RULES                                                       ACTIONS                         */
 %%
-"//".* { cout << "COMMENT: " << yytext << endl; }
-"int"|"double"|"return" { cout << "KEYWORD: " << yytext << endl; }
-{STRING}                { cout << "STRING_LITERAL: " << yytext << endl; }
-{ID}                    { cout << "IDENTIFIER: " << yytext << endl; }
-{DIGIT}+                { cout << "NUMBER: " << yytext << endl; }
-"="|"+"|"*"|"&"         { cout << "OPERATOR: " << yytext << endl; }
-"("|")"|"{"|"}"|","|";" { cout << "PUNCTUATION: " << yytext << endl; }
-[ \t\n]+                { /* Skip whitespace */ }
-.                       { cout << "UNKNOWN: " << yytext << endl; }
+"//".*                                                  {cout << "COMMENT: " << yytext << endl;}
+"int"|"float"|"bool"|"return"|"continue"|"true"|"false" {cout << "KEYWORD: " << yytext << endl;}
+{DIGIT}+                                                {cout << "DIGIT: " << yytext << endl;}
+{ID}                                                    {cout << "ID: " << yytext << endl;}
+{STRINGS}                                               {cout << "STRING_LITERAL: " << yytext << endl;}
+"="|"+"|"-"|"/"|"*"|"%"                                 {cout << "OP: " << yytext << endl;}
+"("|")"|"["|"]"|"{"|"}"                                 {cout << "DELIMTER: " << yytext << endl;}
+[\t\n]+                                                 {/*Skip whitespaces*/}
+.                                                       {cout << "UNKNOWN " << yytext << endl;}
 %%
 
-int yywrap() { return 1; }
+int yywrap() {return 1;}
 
-int main() {
-    // Open the input file
-    FILE *myfile = fopen("input.cpp", "r");
-    if (!myfile) {
-        cout << "Error: Cannot open input.cpp!" << endl;
+int main(){
+
+    FILE *file = fopen("input.cpp","r");
+    if(!file){
+        cout << "ERROR: Cannot open the input.cpp!" << endl;
         return -1;
     }
-    
-    // Set Flex to read from the file instead of stdin
-    yyin = myfile;
-    
-    cout << "--- Starting Tokenization ---" << endl;
+
+    yyin = file;
+
+    cout << "--- START TOKENIZATION ---" << endl;
     yylex();
-    cout << "--- Tokenization Complete ---" << endl;
+    cout << "--- TOKENIZATION COMPLETE ---" << endl;
+
+    fclose(file);
     
-    fclose(myfile);
     return 0;
 }
