@@ -9,28 +9,28 @@ const int MAX_CHARS = 256;
 class DFA {
    private:
     int startState;
-    int transition[MAX_STATES][MAX_CHARS];
-    bool acceptedStates[MAX_STATES];
+    bool acceptedState[MAX_STATES];
+    int transitionMatrix[MAX_STATES][MAX_CHARS];
 
    public:
-    DFA(int start) : startState(start) {
+    DFA(int state) : startState(state) {
         for (int i = 0; i < MAX_STATES; i++) {
             for (int j = 0; j < MAX_CHARS; j++) {
-                transition[i][j] = -1;
+                transitionMatrix[i][j] = -1;
             }
-            acceptedStates[i] = false;
+            acceptedState[i] = false;
         }
     }
 
     void addTransition(int currentState, char input, int nextState) {
         if (currentState < MAX_STATES && nextState < MAX_STATES) {
-            transition[currentState][input] = nextState;
+            transitionMatrix[currentState][input] = nextState;
         }
     }
 
     void addAcceptedState(int state) {
         if (state < MAX_STATES) {
-            acceptedStates[state] = true;
+            acceptedState[state] = true;
         }
     }
 
@@ -39,35 +39,60 @@ class DFA {
         int i = 0;
 
         while (inputStr[i] != '\0') {
-            char c = inputStr[i];
-
-            currentState = transition[currentState][c];
+            currentState = transitionMatrix[currentState][inputStr[i]];
             if (currentState == -1) {
                 return false;
             }
-
             i++;
         }
-        return acceptedStates[currentState];
+        return acceptedState[currentState];
     }
 };
-
 int main() {
-
+    // .------------------------------------------------------.
+    // | Setup the DFA (Accepts binary strings ending in "11")|
+    // .------------------------------------------------------.
     DFA dfa(0);
 
     dfa.addAcceptedState(2);
 
-    dfa.addTransition(0,'0',0);
-    dfa.addTransition(0,'1',1);
+    dfa.addTransition(0, '0', 0);
+    dfa.addTransition(0, '1', 1);
 
-    dfa.addTransition(1,'0',0);
-    dfa.addTransition(1,'1',2);
+    dfa.addTransition(1, '0', 0);
+    dfa.addTransition(1, '1', 2);
 
-    dfa.addTransition(2,'0',0);
-    dfa.addTransition(2,'1',2);
+    dfa.addTransition(2, '0', 0);
+    dfa.addTransition(2, '1', 2);
 
-    // Taking input from the file
-    
+    // ---------------------------------------------------------
+    // File Handling & Processing
+    // ---------------------------------------------------------
+    ifstream inputFile("input.txt");
 
+    // Check if the file opened successfully
+    if (!inputFile.is_open()) {
+        cerr << "Error: Could not open 'input.txt'. Please create it in the working directory.\n";
+        return 1;
+    }
+
+    // Buffer to hold our inputs. Assumes no single string exceeds 255 characters.
+    char buffer[256]; 
+
+    cout << "Reading from input.txt...\n";
+    cout << "-------------------------\n";
+
+    // Read word by word from the file into our char array
+    while (inputFile >> buffer) {
+        if (dfa.process(buffer)) {
+            cout << "String \"" << buffer << "\" is ACCEPTED.\n";
+        } else {
+            cout << "String \"" << buffer << "\" is REJECTED.\n";
+        }
+    }
+
+    // Close the file stream cleanly
+    inputFile.close();
+
+    return 0;
 }
