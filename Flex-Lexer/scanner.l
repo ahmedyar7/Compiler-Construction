@@ -14,17 +14,18 @@ STRING             \"[^\"]*\"
 /*Defining the RULES and ACTIONS*/
 
 %%
-"//".                                                                                {cout << "COMMENTS -> "           << yytext << endl;}
-"int"|"float"|"double"|"bool"|"main"|"void"|"true"|"false"|"continue"|"return"       {cout << "KW -> "                 << yytext << endl;}
-{DIGIT}+                                                                             {cout << "DIGIT -> "              << yytext << endl;}
-{ID}                                                                                 {cout << "ID ->  "                 << yytext << endl;}
-{STRING}                                                                             {cout << "STRINGS_LITERALS -> "   << yytext << endl;}
-"+"|"-"|"/"|"*"|"%"                                                                  {cout << "ARITHEMATIC-OP -> "     << yytext << endl;}
-"("|")"|"["|"]"|"{"|"}"|";"|"."|","                                                  {cout << "DELIMITER -> "          << yytext << endl;}
-"&&"|"||"|"!"|"=="|"!="                                                              {cout << "CONDITION -> "          << yytext << endl;}
-"="                                                                                  {cout << "ASSIGN -> "             << yytext << endl;}
+"//".                                                                                {cout << "COMMENTS\t\t|\t"           << yytext << endl;}
+"int"|"float"|"double"|"bool"|"main"|"void"|"true"|"false"|"continue"|"return"       {cout << "KW\t\t|\t"                 << yytext << endl;}
+{DIGIT}+                                                                             {cout << "DIGIT\t\t|\t"              << yytext << endl;}
+{ID}                                                                                 {cout << "ID\t\t|\t"                 << yytext << endl;}
+{STRING}                                                                             {cout << "STRINGS_LITERALS\t\t|\t"   << yytext << endl;}
+"+"|"-"|"/"|"*"|"%"                                                                  {cout << "ARITHEMATIC-OP\t|\t"     << yytext << endl;}
+"("|")"|"["|"]"|"{"|"}"|";"|"."|","                                                  {cout << "DELIMITER\t|\t"          << yytext << endl;}
+"&&"|"||"|"!"|"=="|"!="                                                              {cout << "CONDITION\t|\t"          << yytext << endl;}
+"="                                                                                  {cout << "ASSIGN\t\t|\t"             << yytext << endl;}
+"<"|"<="|">"|">="                                                                    {cout << "RELATION-OP\t|\t"             << yytext << endl;}
 [ \t\n]                                                                              {/*IGNORE WHITESPACES*/}
-.                                                                                    {cout << "UNKNOWN -> "            << yytext << endl;} 
+.                                                                                    {cout << "UNKNOWN\t\t|\t"            << yytext << endl;} 
 %%
 
 int yywrap(){
