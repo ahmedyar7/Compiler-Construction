@@ -49,9 +49,9 @@ class DFA {
     }
 };
 int main() {
-    // .------------------------------------------------------.
+    // +------------------------------------------------------+
     // | Setup the DFA (Accepts binary strings ending in "11")|
-    // .------------------------------------------------------.
+    // +------------------------------------------------------+
     DFA dfa(0);
 
     dfa.addAcceptedState(2);
@@ -72,12 +72,14 @@ int main() {
 
     // Check if the file opened successfully
     if (!inputFile.is_open()) {
-        cerr << "Error: Could not open 'input.txt'. Please create it in the working directory.\n";
+        cerr << "Error: Could not open 'input.txt'. Please create it in the "
+                "working directory.\n";
         return 1;
     }
 
-    // Buffer to hold our inputs. Assumes no single string exceeds 255 characters.
-    char buffer[256]; 
+    // Buffer to hold our inputs. Assumes no single string exceeds 255
+    // characters.
+    char buffer[256];
 
     cout << "Reading from input.txt...\n";
     cout << "-------------------------\n";

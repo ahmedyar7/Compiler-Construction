@@ -1,27 +1,27 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
-
 // Define maximums to replace dynamic data structures
 const int MAX_STATES = 10;
-const int MAX_CHARS = 256; // Standard extended ASCII size
+const int MAX_CHARS = 256;  // Standard extended ASCII size
 
 class DFA {
-private:
-    // 2D array replaces map. 
+   private:
+    // 2D array replaces map.
     // transitions[state][character_ascii] = next_state
     int transitions[MAX_STATES][MAX_CHARS];
-    
+
     // Boolean array replaces set for quick O(1) lookups
     bool acceptStates[MAX_STATES];
-    
+
     int startState;
 
-public:
+   public:
     DFA(int start) : startState(start) {
-        // Initialize all transitions to -1 (indicating no valid path / dead state)
+        // Initialize all transitions to -1 (indicating no valid path / dead
+        // state)
         for (int i = 0; i < MAX_STATES; ++i) {
             for (int j = 0; j < MAX_CHARS; ++j) {
                 transitions[i][j] = -1;
@@ -53,13 +53,13 @@ public:
         // Iterate until we hit the null terminator '\0' of the char array
         while (inputStr[i] != '\0') {
             char c = inputStr[i];
-            
+
             // Look up the next state in our 2D array
             currentState = transitions[currentState][(unsigned char)c];
-            
+
             // If we hit a -1, there was no transition rule defined
             if (currentState == -1) {
-                return false; 
+                return false;
             }
             i++;
         }
@@ -93,12 +93,14 @@ int main() {
 
     // Check if the file opened successfully
     if (!inputFile.is_open()) {
-        cerr << "Error: Could not open 'input.txt'. Please create it in the working directory.\n";
+        cerr << "Error: Could not open 'input.txt'. Please create it in the "
+                "working directory.\n";
         return 1;
     }
 
-    // Buffer to hold our inputs. Assumes no single string exceeds 255 characters.
-    char buffer[256]; 
+    // Buffer to hold our inputs. Assumes no single string exceeds 255
+    // characters.
+    char buffer[256];
 
     cout << "Reading from input.txt...\n";
     cout << "-------------------------\n";
