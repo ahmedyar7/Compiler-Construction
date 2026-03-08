@@ -5,22 +5,26 @@
 using namespace std;
 %}
 
-DIGIT               [0-9]
-IDENTIFIER          [a-zA-Z_][a-zA-Z0-9_]*
-STRING              \"[^\"]*\"
+/*Defining the Regular Expression*/
+
+DIGIT              [0-9]
+ID                 [a-zA-Z_][a-zA-Z0-9_]*
+STRING             \"[^\"]*\"
+
+/*Defining the RULES and ACTIONS*/
 
 %%
-"//".                                                                                     {cout << "COMMENT:" << endl;}
-"int"|"float"|"double"|"bool"|"true"|"false"|"return"|"continue"|"if"|"else"|"else if"    {cout << "ID: " << yytext << endl;}
-{DIGIT}+                                                                                  {cout << "DIGIT: " << yytext << endl;}
-{IDENTIFIER}                                                                              {cout << "ID: " << yytext << endl;}
-{STRING}                                                                                  {cout << "STRINGS_LITERALS: " << yytext << endl;}
-"+"|"-"|"/"|"*"|"%"                                                                       {cout << "ARITHEMATIC-OPS: " << yytext << endl;}
-"<"|"<="|">"|">="                                                                         {cout << "RELATION-OP: " << yytext << endl;}
-"&&"|"||"|"!"                                                                             {cout << "CONDITION-OP: " << yytext << endl;}
-";"|":"|","|"("|")"|"["|"]"|"{"|"}"                                                       {cout << "DELIMITER: " << yytext << endl;}
-[ \t\n]                                                                                   {/*WHITESPACES*/}
-.                                                                                         {cout << "UNKNOWN:" << endl;}
+"//".                                                                                {cout << "COMMENTS -> "           << yytext << endl;}
+"int"|"float"|"double"|"bool"|"main"|"void"|"true"|"false"|"continue"|"return"       {cout << "KW -> "                 << yytext << endl;}
+{DIGIT}+                                                                             {cout << "DIGIT -> "              << yytext << endl;}
+{ID}                                                                                 {cout << "ID ->  "                 << yytext << endl;}
+{STRING}                                                                             {cout << "STRINGS_LITERALS -> "   << yytext << endl;}
+"+"|"-"|"/"|"*"|"%"                                                                  {cout << "ARITHEMATIC-OP -> "     << yytext << endl;}
+"("|")"|"["|"]"|"{"|"}"|";"|"."|","                                                  {cout << "DELIMITER -> "          << yytext << endl;}
+"&&"|"||"|"!"|"=="|"!="                                                              {cout << "CONDITION -> "          << yytext << endl;}
+"="                                                                                  {cout << "ASSIGN -> "             << yytext << endl;}
+[ \t\n]                                                                              {/*IGNORE WHITESPACES*/}
+.                                                                                    {cout << "UNKNOWN -> "            << yytext << endl;} 
 %%
 
 int yywrap(){
@@ -29,17 +33,17 @@ int yywrap(){
 
 int main(){
 
-    FILE* file = fopen("input.cpp","r");
+    FILE *file = fopen("input.cpp","r");
     if(!file){
-        cout << "Error: Unable to open the file" << endl;
+        cout << "\nUnable to open the file (input.cpp)\n";
         return -1;
     }
 
     yyin = file;
 
-    cout << "\n==== START TOKENIZATION  ====\n";
+    cout << "\n--- START TOKENIZATION ---\n";
     yylex();
-    cout << "\n==== END TOKENIZAITON  ====\n";
+    cout << "\n--- END TOKENIZATION ---\n";
 
     fclose(file);
 
