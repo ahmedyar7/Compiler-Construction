@@ -24,14 +24,14 @@ class DFA {
     }
 
     void addTransition(int currentState, char input, int nextState) {
-        if(currentState<MAX_STATES && nextState < MAX_STATES){
-            transitions[currentState][input]=nextState;
+        if (currentState < MAX_STATES && nextState < MAX_STATES) {
+            transitions[currentState][input] = nextState;
         }
     }
 
     void addAcceptedState(int state) {
-        if(state<MAX_STATES){
-            acceptedStates[state]=true;
+        if (state < MAX_STATES) {
+            acceptedStates[state] = true;
         }
     }
 
@@ -39,11 +39,11 @@ class DFA {
         int currentState = startState;
         int i = 0;
 
-        while(inputStr[i]!='\0'){
+        while (inputStr[i] != '\0') {
             char c = inputStr[i];
 
             currentState = transitions[currentState][c];
-            if(currentState==-1){
+            if (currentState == -1) {
                 return false;
             }
             i++;
