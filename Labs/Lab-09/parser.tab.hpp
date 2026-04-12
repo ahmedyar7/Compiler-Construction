@@ -36,10 +36,10 @@
    private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_PARSER_TAB_HPP_INCLUDED
-# define YY_YY_PARSER_TAB_HPP_INCLUDED
+#define YY_YY_PARSER_TAB_HPP_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+#define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -47,42 +47,38 @@ extern int yydebug;
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
-  {
+#define YYTOKENTYPE
+enum yytokentype {
     YYEMPTY = -2,
-    YYEOF = 0,                     /* "end of file"  */
-    YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
-    HEADER = 258,                  /* HEADER  */
-    NAMESPACE = 259,               /* NAMESPACE  */
-    TYPE = 260,                    /* TYPE  */
-    RETURN = 261,                  /* RETURN  */
-    WHILE = 262,                   /* WHILE  */
-    IF = 263,                      /* IF  */
-    BUILTIN = 264,                 /* BUILTIN  */
-    IOSTREAM = 265,                /* IOSTREAM  */
-    STREAM_OP = 266,               /* STREAM_OP  */
-    ID = 267,                      /* ID  */
-    NUM = 268,                     /* NUM  */
-    UPDATE_OP = 269,               /* UPDATE_OP  */
-    REL_OP = 270                   /* REL_OP  */
-  };
-  typedef enum yytokentype yytoken_kind_t;
+    YYEOF = 0,       /* "end of file"  */
+    YYerror = 256,   /* error  */
+    YYUNDEF = 257,   /* "invalid token"  */
+    HEADER = 258,    /* HEADER  */
+    NAMESPACE = 259, /* NAMESPACE  */
+    TYPE = 260,      /* TYPE  */
+    RETURN = 261,    /* RETURN  */
+    WHILE = 262,     /* WHILE  */
+    IF = 263,        /* IF  */
+    BUILTIN = 264,   /* BUILTIN  */
+    IOSTREAM = 265,  /* IOSTREAM  */
+    STREAM_OP = 266, /* STREAM_OP  */
+    ID = 267,        /* ID  */
+    NUM = 268,       /* NUM  */
+    UPDATE_OP = 269, /* UPDATE_OP  */
+    REL_OP = 270     /* REL_OP  */
+};
+typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+#if !defined YYSTYPE && !defined YYSTYPE_IS_DECLARED
 typedef int YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+#define YYSTYPE_IS_TRIVIAL 1
+#define YYSTYPE_IS_DECLARED 1
 #endif
-
 
 extern YYSTYPE yylval;
 
-
-int yyparse (void);
-
+int yyparse(void);
 
 #endif /* !YY_YY_PARSER_TAB_HPP_INCLUDED  */
