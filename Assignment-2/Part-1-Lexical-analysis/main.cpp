@@ -1,12 +1,13 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <cctype> // for isalpha, isdigit, isspace
 
 using namespace std;
 
 class AdHocLexer {
-   private:
-    bool compareStr(const char* str1, const char* str2) {
+private:
+    bool compare(const char* str1, const char* str2) {
         while (*str1 && *str2 && *str1 == *str2) {
             str1++;
             str2++;
@@ -15,123 +16,92 @@ class AdHocLexer {
     }
 
     bool findKeywords(const char* kw) {
-        const char* KEYWORDS[] = {"int",  "main",  "float",    "double", "bool",
-                                  "true", "false", "continue", "return", "char",
-                                  "if",   "else",  "else if"};
-
-        for (int i = 0; i < sizeof(KEYWORDS) / sizeof(KEYWORDS[i]); i++) {
-            if (compareStr(KEYWORDS[i], kw)) {
-                return true;
-            }
+        const char* KEYWORDS[] = {"int", "float", "bool", "double",
+                                  "main", "return", "continue", "true",
+                                  "false", "class", "include"};
+        for (int i = 0; i < sizeof(KEYWORDS) / sizeof(KEYWORDS[0]); i++) {
+            if (compare(KEYWORDS[i], kw)) return true;
         }
         return false;
     }
 
-   public:
+public:
     void lexer(const char* fileName) {
-        ifstream inFile("./sample.txt");
-
-        if (!inFile) {
-            cout << "ERROR: File (sample.txt) cannot be openned\n";
+        ifstream Fin(fileName);
+        if (!Fin) {
+            cout << "Unable to open the file...\n";
             return;
         }
 
-        int i = 0;
         char ch;
-        char buff[100];
+        char buff[1024];
 
-        while (inFile.get(ch)) {
-            // Managing the Spaces
-            // - whitespaces,
-            // - newline
-            // - next line cursor
-            if (isspace(ch)) {
-                continue;
-            }
+        while (Fin.get(ch)) {
+            // 1. Handling Whitespaces
+            if (isspace(ch)) continue;
 
-            // Managing the AlphaNumeric Identifyers
-            // - userdefined variables, constants
+            // 2. Handling Keywords and Identifiers
             if (isalpha(ch)) {
-                i = 0;
+                int i = 0;
                 buff[i++] = ch;
-
-                while (inFile.get(ch) && (isalpha(ch) || isdigit(ch))) {
+                while (Fin.get(ch) && (isalnum(ch))) {
                     buff[i++] = ch;
                 }
                 buff[i] = '\0';
+                Fin.putback(ch); // Put back the non-alpha char
 
-                if (findKeywords(buff)) {
-                    cout << "KW: " << buff << endl;
-                } else {
-                    cout << "ID: " << buff << endl;
-                }
+                if (findKeywords(buff)) cout << "KW: " << buff << endl;
+                else cout << "<ID, " << buff << ">" << endl;
             }
 
-            // Managing the Digits(int and float/double)
+            // 3. Handling Numbers
             else if (isdigit(ch)) {
-                i = 0;
+                int i = 0;
                 buff[i++] = ch;
-                bool hasDot = false;
-
-                while (inFile.get(ch) && (isdigit(ch)) ||
-                       (ch == '.' && !hasDot)) {
-                    if (ch == '.') {
-                        hasDot = true;
-                    }
+                bool isDot = false;
+                while (Fin.get(ch) && (isdigit(ch) || (ch == '.' && !isDot))) {
+                    if (ch == '.') isDot = true;
                     buff[i++] = ch;
                 }
-
                 buff[i] = '\0';
-                cout << "DIGITS: " << buff << endl;
+                Fin.putback(ch); 
+                cout << "<NUM, " << buff << ">" << endl;
             }
 
-            // Managing relational operators
-            // < > == <= >= !=
-            else if (ch == '<' || ch == '<=' || ch == '>' || ch == '>=' ||
-                     ch == '==' || ch == '!=') {
-                char next = ch;
-                inFile.get(next);
+            // 4. Handling Arithmetic Operators
+            else if (ch == '+' || ch == '-' || ch == '/' || ch == '%' || ch == '*') {
+                if (ch == '+') cout << "<PLUS, +>" << endl;
+                else if (ch == '-') cout << "<MINUS, ->" << endl;
+                else if (ch == '*') cout << "<MULT, *>" << endl;
+                else if (ch == '/') cout << "<DIV, />" << endl;
+                else if (ch == '%') cout << "<MOD, %>" << endl;
+            }
 
-                if (next == '=') {
-                    cout << "relop: " << ch << " = " << endl;
-                } else {
-                    if (ch == '=') {
-                        cout << "Relation-Operator: " << ch << endl;
-                    } else {
-                        cout << "relop: " << ch << " = " << endl;
-                    }
+            // 5. Handling Delimiters
+            else if (ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
+                if (ch == '(') cout << "<LPARN, (>" << endl;
+                else if (ch == ')') cout << "<RPARN, )>" << endl;
+                else cout << "<DELIM, " << ch << ">" << endl;
+            }
+
+            // 6. Handling Relational and Logical Operators
+            else if (ch == '<' || ch == '>' || ch == '=' || ch == '!' || ch == '&' || ch == '|') {
+                char next;
+                Fin.get(next);
+
+                if (ch == '=' && next == '=') cout << "<RELOP, ==>" << endl;
+                else if (ch == '!' && next == '=') cout << "<RELOP, !=>" << endl;
+                else if (ch == '<' && next == '=') cout << "<RELOP, <=>" << endl;
+                else if (ch == '>' && next == '=') cout << "<RELOP, >=>" << endl;
+                else if (ch == '&' && next == '&') cout << "<LOGICOP, &&>" << endl;
+                else if (ch == '|' && next == '|') cout << "<LOGICOP, ||>" << endl;
+                else {
+                    // It was a single character operator
+                    Fin.putback(next);
+                    if (ch == '=') cout << "<ASSIGN, =>" << endl;
+                    else if (ch == '!') cout << "<NOT, !>" << endl;
+                    else cout << "<RELOP, " << ch << ">" << endl;
                 }
-            }
-
-            // Managing the Operators
-            // + - / * %
-            else if (ch == '+' || ch == '-' || ch == '/' || ch == '*') {
-                char next = ch;
-                inFile.get(ch);
-
-                if (next == '=') {
-                    cout << "relop: " << ch << " = " << endl;
-                } else {
-                    if (ch == '=') {
-                        cout << "Relation-Operator: " << ch << endl;
-                    } else {
-                        cout << "relop: " << ch << " = " << endl;
-                    }
-                }
-            }
-
-            // Manging the Delimiters
-            // - () {} [] : .
-            else if (ch == '(' || ch == ')' || ch == '[' || ch == ']' ||
-                     ch == '{' || ch == '}' || ch == ';' || ch == '.' ||
-                     ch == '.') {
-                cout << "DELIMITERS: " << ch << endl;
-            }
-
-            // Manging the Conditional Operators
-            // || && !
-            else if (ch == '||' || ch == '&&' || ch == '!') {
-                cout << "CONDITIONAL-OPERATOR: " << ch << endl;
             }
         }
     }
