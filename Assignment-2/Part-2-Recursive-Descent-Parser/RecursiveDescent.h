@@ -11,7 +11,8 @@
 //     Node *left, *right;
 
 //     // Constructor for easy creation
-//     Node(NodeType t, const char* v) : type(t), left(nullptr), right(nullptr) {
+//     Node(NodeType t, const char* v) : type(t), left(nullptr), right(nullptr)
+//     {
 //         int i = 0;
 //         while (v[i] != '\0' && i < 31) {
 //             value[i] = v[i];

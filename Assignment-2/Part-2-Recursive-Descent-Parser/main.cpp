@@ -1,8 +1,9 @@
-#include "RecursiveDescent.h"
-#include "RecursiveDescent.cpp"
-#include <iostream>
-#include <fstream>
 #include <cctype>
+#include <fstream>
+#include <iostream>
+
+#include "RecursiveDescent.cpp"
+#include "RecursiveDescent.h"
 
 using namespace std;
 
