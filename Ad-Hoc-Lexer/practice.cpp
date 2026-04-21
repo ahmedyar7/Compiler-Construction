@@ -35,7 +35,7 @@ class AdHocLexer {
 
         int i = 0;
         char ch;
-        char buff[1024]; 
+        char buff[1024];
 
         while (Fin.get(ch)) {
             // Handling Whitespaces
