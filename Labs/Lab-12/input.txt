@@ -1,0 +1,2 @@
+int result = calculate(a, b);
+x = func(y);
