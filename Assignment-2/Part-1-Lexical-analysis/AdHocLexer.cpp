@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstring>
 
+using namespace std;
 bool AdHocLexer::compare(const char* str1, const char* str2) {
     while (*str1 && *str2 && *str1 == *str2) {
         str1++;
@@ -22,9 +23,9 @@ bool AdHocLexer::findKeywords(const char* kw) {
 }
 
 void AdHocLexer::lexer(const char* fileName) {
-    std::ifstream Fin(fileName);
+    ifstream Fin(fileName);
     if (!Fin) {
-        std::cout << "Unable to open the file...\n";
+        cout << "Unable to open the file...\n";
         return;
     }
 
@@ -43,9 +44,9 @@ void AdHocLexer::lexer(const char* fileName) {
             buff[i] = '\0';
             Fin.putback(ch);
             if (findKeywords(buff))
-                std::cout << "KW: " << buff << std::endl;
+                cout << "KW: " << buff << endl;
             else
-                std::cout << "<ID, " << buff << ">" << std::endl;
+                cout << "<ID, " << buff << ">" << endl;
         } else if (isdigit(ch)) {
             int i = 0;
             buff[i++] = ch;
@@ -56,51 +57,51 @@ void AdHocLexer::lexer(const char* fileName) {
             }
             buff[i] = '\0';
             Fin.putback(ch);
-            std::cout << "<NUM, " << buff << ">" << std::endl;
+            cout << "<NUM, " << buff << ">" << endl;
         } else if (ch == '+' || ch == '-' || ch == '/' || ch == '%' ||
                    ch == '*') {
             if (ch == '+')
-                std::cout << "<PLUS, +>" << std::endl;
+                cout << "<PLUS, +>" << endl;
             else if (ch == '-')
-                std::cout << "<MINUS, ->" << std::endl;
+                cout << "<MINUS, ->" << endl;
             else if (ch == '*')
-                std::cout << "<MULT, *>" << std::endl;
+                cout << "<MULT, *>" << endl;
             else if (ch == '/')
-                std::cout << "<DIV, />" << std::endl;
+                cout << "<DIV, />" << endl;
             else if (ch == '%')
-                std::cout << "<MOD, %>" << std::endl;
+                cout << "<MOD, %>" << endl;
         } else if (ch == '(' || ch == ')' || ch == '[' || ch == ']' ||
                    ch == '{' || ch == '}') {
             if (ch == '(')
-                std::cout << "<LPARN, (>" << std::endl;
+                cout << "<LPARN, (>" << endl;
             else if (ch == ')')
-                std::cout << "<RPARN, )>" << std::endl;
+                cout << "<RPARN, )>" << endl;
             else
-                std::cout << "<DELIM, " << ch << ">" << std::endl;
+                cout << "<DELIM, " << ch << ">" << endl;
         } else if (ch == '<' || ch == '>' || ch == '=' || ch == '!' ||
                    ch == '&' || ch == '|') {
             char next;
             Fin.get(next);
             if (ch == '=' && next == '=')
-                std::cout << "<RELOP, ==>" << std::endl;
+                cout << "<RELOP, ==>" << endl;
             else if (ch == '!' && next == '=')
-                std::cout << "<RELOP, !=>" << std::endl;
+                cout << "<RELOP, !=>" << endl;
             else if (ch == '<' && next == '=')
-                std::cout << "<RELOP, <=>" << std::endl;
+                cout << "<RELOP, <=>" << endl;
             else if (ch == '>' && next == '=')
-                std::cout << "<RELOP, >=>" << std::endl;
+                cout << "<RELOP, >=>" << endl;
             else if (ch == '&' && next == '&')
-                std::cout << "<LOGICOP, &&>" << std::endl;
+                cout << "<LOGICOP, &&>" << endl;
             else if (ch == '|' && next == '|')
-                std::cout << "<LOGICOP, ||>" << std::endl;
+                cout << "<LOGICOP, ||>" << endl;
             else {
                 Fin.putback(next);
                 if (ch == '=')
-                    std::cout << "<ASSIGN, =>" << std::endl;
+                    cout << "<ASSIGN, =>" << endl;
                 else if (ch == '!')
-                    std::cout << "<NOT, !>" << std::endl;
+                    cout << "<NOT, !>" << endl;
                 else
-                    std::cout << "<RELOP, " << ch << ">" << std::endl;
+                    cout << "<RELOP, " << ch << ">" << endl;
             }
         }
     }
